@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Square } from "./Square";
 import { useDispatch, useSelector } from "react-redux";
-import { setPlayerBoard, updateBoard } from "../store/mainSlice";
+import { setCleanPlayerBoard, setEnemyShips, setPlayerBoard, updateBoard } from "../store/mainSlice";
+import { generateRandomShips } from "../helpers/getRandomShips";
 
 export const Board = () => {
   const dispatch = useDispatch();
@@ -10,12 +11,19 @@ export const Board = () => {
   const [board, setBoard] = useState(initialBoard);
   const [inputValue, setInputValue] = useState("");
 
+  const playerBoard = useSelector((state) => state.main.playerBoard);
+
+  const { ships, updatedBoard } = generateRandomShips(boardSize, 5, 4);
+  console.log("Barcos enemigos: ", ships)
+
   useEffect(() => {
-    dispatch(setPlayerBoard(initialBoard));
+    dispatch(setPlayerBoard(updatedBoard));
+    dispatch(setEnemyShips(ships))
   }, [dispatch]);
 
-  const playerBoard = useSelector((state) => state.main.playerBoard);
-  console.log("Estado Inicial:", playerBoard);
+
+
+
   
   const getMatrixIndex = (row, col) => {
     const rowIndex = col - 1;
@@ -58,6 +66,11 @@ export const Board = () => {
     }
   };
 
+  const handleClearClick = (event) => {
+    event.preventDefault();
+    dispatch(setCleanPlayerBoard(initialBoard))
+  }
+
 
   
 
@@ -92,6 +105,7 @@ export const Board = () => {
           <button
             className="btn btn-outline-secondary command-button"
             type="button"
+            onClick={handleClearClick}
           >
             Limpiar
           </button>
