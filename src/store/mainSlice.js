@@ -12,7 +12,7 @@ export const mainSlice = createSlice({
 
     reducers: {
         setPlayerBoard: (state, action) => {
-            return { ...state, playerBoard: action.payload };
+            state.playerBoard = action.payload;
         },
         setEnemyShips: (state, action) => {
             state.enemyShips = action.payload;

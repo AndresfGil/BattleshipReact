@@ -11,9 +11,9 @@ const getRandomInt = (min, max) => {
     const positions = [];
   
     for (let i = 0; i < shipSize; i++) {
-      const position = isVertical ? [rowIndex + i, colIndex] : [rowIndex, colIndex + i];
-      positions.push(position);
-    }
+    const position = isVertical ? [rowIndex, colIndex + i] : [rowIndex + i, colIndex];
+    positions.push(position);
+  }
   
     return positions;
   };
@@ -23,11 +23,13 @@ const getRandomInt = (min, max) => {
   };
   
   const placeShipOnBoard = (board, positions) => {
-    return board.map((row, rowIndex) => {
-      return row.map((cell, colIndex) => {
-        return positions.some(([rowPos, colPos]) => rowPos === rowIndex && colPos === colIndex) ? "ship" : cell;
-      });
+    const newBoard = board.map(row => [...row]);
+  
+    positions.forEach(([rowPos, colPos]) => {
+      newBoard[rowPos][colPos] = "ship";
     });
+  
+    return newBoard;
   };
   
   export const generateRandomShips = (boardSize, shipCount, shipSize) => {
@@ -37,13 +39,17 @@ const getRandomInt = (min, max) => {
   
     while (ships.length < shipCount) {
       const positions = generateRandomPosition(board.length, shipSize);
-  
+        
+      console.log("Posiciones generadas:", positions);
+
       if (isValidPlacement(board, positions)) {
         ships.push(positions);
         // Actualiza el estado del tablero para marcar las posiciones del barco
         board = placeShipOnBoard(board, positions);
       }
     }
+
+    console.log("Tablero con barcos generados:", board);
   
     return { ships, updatedBoard: board };
   };
