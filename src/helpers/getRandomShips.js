@@ -30,7 +30,7 @@ const placeShipOnBoard = (board, positions) => {
   const newBoard = board.map((row) => [...row]);
 
   positions.forEach(([rowPos, colPos]) => {
-    newBoard[rowPos][colPos] = "ship";
+    newBoard[rowPos][colPos] = "";
   });
 
   return newBoard;
