@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Square } from "./Square";
-import { useDispatch, useSelector } from "react-redux";
-import { setCleanPlayerBoard, setEnemyShips, setGameActive, setPlayerBoard, updateBoard } from "../store/mainSlice";
-import { generateRandomShips } from "../helpers/getRandomShips";
 import Swal from "sweetalert2";
+import { Square } from "./Square";
+import logo from "../resources/Boat.png";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { generateRandomShips } from "../helpers/getRandomShips";
+import { setCleanPlayerBoard, setEnemyShips, setGameActive, setPlayerBoard, updateBoard } from "../store/mainSlice";
+
 
 export const Board = () => {
-
   const dispatch = useDispatch();
   const boardSize = 10;
   const [inputValue, setInputValue] = useState("");
   const playerBoard = useSelector((state) => state.main.playerBoard);
   const ships = useSelector((state) => state.main.enemyShips);
-
-  const [shipsDestroyed, setShipsDestroyed] = useState(0)
+  const [shipsDestroyed, setShipsDestroyed] = useState(0);
 
 
   useEffect(() => {
@@ -35,38 +35,37 @@ export const Board = () => {
     setInputValue(event.target.value.toUpperCase());
   };
 
-
+  
   const [selectedCoordinates, setSelectedCoordinates] = useState([]);
 
+  
   useEffect(() => {
     // Verificar si todos los barcos han sido destruidos
     if (ships.length > 0 && selectedCoordinates.length > 0) {
       const shipsDestroyed = ships.filter((ship) =>
         ship.every(([shipRow, shipCol]) =>
-          selectedCoordinates.some((coord) => coord[0] === shipRow && coord[1] === shipCol)
+          selectedCoordinates.some(
+            (coord) => coord[0] === shipRow && coord[1] === shipCol
+          )
         )
       ).length;
-  
-    if (shipsDestroyed === ships.length) {
-      // Todos los barcos han sido destruidos
-      console.log('¡Todos los barcos han sido destruidos!');
-      dispatch(setGameActive(false))
-      Swal.fire({
-        title: '¡Felicidades!',
-        text: 'Has ganado el juego. Todos los barcos enemigos han sido destruidos.',
-        icon: 'success',
-        confirmButtonText: 'Jugar de nuevo'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          dispatch(setGameActive(false)); // Reinicia el juego
-        }
-      });
-      
-      // Puedes realizar cualquier acción adicional aquí, como mostrar un mensaje o reiniciar el juego.
+
+      if (shipsDestroyed === ships.length) {
+        dispatch(setGameActive(false));
+        Swal.fire({
+          title: "¡Felicidades!",
+          text: "Has ganado el juego. Todos los barcos enemigos han sido destruidos.",
+          icon: "success",
+          confirmButtonText: "Jugar de nuevo",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            dispatch(setGameActive(false));
+          }
+        });
+      }
+
+      setShipsDestroyed(shipsDestroyed);
     }
-  
-    setShipsDestroyed(shipsDestroyed);
-  }
   }, [selectedCoordinates]);
 
 
@@ -81,17 +80,14 @@ export const Board = () => {
 
       const { colIndex, rowIndex } = getMatrixIndex(row, col);
 
-      
       const isCoordinateSelected = selectedCoordinates.some(
-          (coord) => coord[0] === rowIndex && coord[1] === colIndex
-        );
+        (coord) => coord[0] === rowIndex && coord[1] === colIndex
+      );
 
       if (!isCoordinateSelected) {
-          setSelectedCoordinates([...selectedCoordinates, [rowIndex, colIndex]]);
+        setSelectedCoordinates([...selectedCoordinates, [rowIndex, colIndex]]);
       }
 
-
-      
       const isHit = ships.some((ship) =>
         ship.some(
           ([shipRow, shipCol]) => shipRow === rowIndex && shipCol === colIndex
@@ -101,27 +97,28 @@ export const Board = () => {
       const newValue = isHit ? "O" : "X";
       dispatch(updateBoard({ rowIndex, colIndex, value: newValue }));
 
-      console.log("Nuevo estado del tablero:");
-      console.log(playerBoard.map((row) => row.join(" ")).join("\n"));
     }
-      setInputValue("");
+    setInputValue("");
   };
+
 
   const handleClickAndReload = (event) => {
     event.preventDefault();
     const { ships, updatedBoard } = generateRandomShips(boardSize, 5, 4);
 
-    dispatch(setCleanPlayerBoard({updatedBoard, ships}));
+    dispatch(setCleanPlayerBoard({ updatedBoard, ships }));
     setShipsDestroyed(0);
-  }
-
-
+  };
 
 
   return (
     <div>
       <div className="comands-container">
-        <h3 className="comands-title">Barcos destruidos: {shipsDestroyed} </h3>
+        <h3 className="comands-title">
+          {" "}
+          <img src={logo} alt="Logo del mapa" width={30} height={30} /> Barcos
+          destruidos: {shipsDestroyed}{" "}
+        </h3>
 
         <label className="commands-text">Comandos:</label>
 

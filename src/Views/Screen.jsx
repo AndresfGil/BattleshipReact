@@ -1,7 +1,7 @@
 import React from 'react'
-import { Board, Title } from '../components'
 import { useSelector } from 'react-redux'
 import { MainScreen } from './MainScreen'
+import { Board, Title } from '../components'
 
 
 export const Screen = () => {

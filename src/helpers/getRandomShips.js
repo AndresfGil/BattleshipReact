@@ -8,6 +8,7 @@ const generateRandomPosition = (boardSize, shipSize) => {
   const rowIndex = getRandomInt(0, maxStartIndex);
   const colIndex = getRandomInt(0, maxStartIndex);
 
+
   const positions = [];
 
   for (let i = 0; i < shipSize; i++) {
@@ -19,6 +20,7 @@ const generateRandomPosition = (boardSize, shipSize) => {
 
   return positions;
 };
+
 
 const isValidPlacement = (board, positions) => {
   return positions.every(([row, col]) => board[row] && board[row][col] === "");
@@ -33,6 +35,7 @@ const placeShipOnBoard = (board, positions) => {
 
   return newBoard;
 };
+
 
 export const generateRandomShips = (boardSize, shipCount, shipSize) => {
   let board = Array.from({ length: boardSize }, () =>
@@ -49,6 +52,7 @@ export const generateRandomShips = (boardSize, shipCount, shipSize) => {
       board = placeShipOnBoard(board, positions);
     }
   }
+  
 
   return { ships, updatedBoard: board };
 };
