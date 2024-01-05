@@ -1,8 +1,20 @@
-# React + Vite
+# Juego Astucia Naval
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Modo de juego:
+* El juego funciona tal y como el famoso juego de mesa, solo que en esta ocacion solo debes intentar encontrar los barcos enemigos.
+* Se generaran 5 barcos enemigos, luego de destruirlos todos el juego terminara.
+* Puedes limpiar el tablero e iniciar de nuevo, ten en cuenta que los barcos enemigos cambiaran de lugar.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Recomendaciones de uso:
+* Se debe clonar el repositorio.
+* Inicializar el proyecto con el comando `npm run dev`.
+* Instalar las siguientes librerias:
+
+
+* **Instalar SweetAlert2**
+`npm install sweetalert2@^11.10.1`
+
+* **Instalar React Redux y Redux Toolkit**
+`npm install react-redux@^9.0.4 @reduxjs/toolkit@^2.0.1`
+  
