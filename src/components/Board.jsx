@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { Square } from "./Square";
 import { useDispatch, useSelector } from "react-redux";
-import { setCleanPlayerBoard, setEnemyShips, setPlayerBoard, updateBoard } from "../store/mainSlice";
+import { setCleanPlayerBoard, setEnemyShips, setGameActive, setPlayerBoard, updateBoard } from "../store/mainSlice";
 import { generateRandomShips } from "../helpers/getRandomShips";
+import Swal from "sweetalert2";
 
 export const Board = () => {
 
   const dispatch = useDispatch();
   const boardSize = 10;
   const [inputValue, setInputValue] = useState("");
-
   const playerBoard = useSelector((state) => state.main.playerBoard);
-  const ships = useSelector((state) => state.main.enemyShips)
+  const ships = useSelector((state) => state.main.enemyShips);
+
+  const [shipsDestroyed, setShipsDestroyed] = useState(0)
+
 
   useEffect(() => {
     const { ships, updatedBoard } = generateRandomShips(boardSize, 5, 4);
@@ -20,55 +23,105 @@ export const Board = () => {
     dispatch(setEnemyShips(ships));
   }, []);
 
+
   const getMatrixIndex = (row, col) => {
     const rowIndex = col - 1;
     const colIndex = row.charCodeAt(0) - "A".charCodeAt(0);
     return { rowIndex, colIndex };
   };
 
+
   const handleInputChange = (event) => {
     setInputValue(event.target.value.toUpperCase());
   };
 
+
   const [selectedCoordinates, setSelectedCoordinates] = useState([]);
+
+  useEffect(() => {
+    // Verificar si todos los barcos han sido destruidos
+    if (ships.length > 0 && selectedCoordinates.length > 0) {
+      const shipsDestroyed = ships.filter((ship) =>
+        ship.every(([shipRow, shipCol]) =>
+          selectedCoordinates.some((coord) => coord[0] === shipRow && coord[1] === shipCol)
+        )
+      ).length;
+  
+    if (shipsDestroyed === ships.length) {
+      // Todos los barcos han sido destruidos
+      console.log('¡Todos los barcos han sido destruidos!');
+      dispatch(setGameActive(false))
+      Swal.fire({
+        title: '¡Felicidades!',
+        text: 'Has ganado el juego. Todos los barcos enemigos han sido destruidos.',
+        icon: 'success',
+        confirmButtonText: 'Jugar de nuevo'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          dispatch(setGameActive(false)); // Reinicia el juego
+        }
+      });
+      
+      // Puedes realizar cualquier acción adicional aquí, como mostrar un mensaje o reiniciar el juego.
+    }
+  
+    setShipsDestroyed(shipsDestroyed);
+  }
+  }, [selectedCoordinates]);
+
 
   const handleFormSubmit = (event) => {
     event.preventDefault();
-  
+
     const validInput = /^[A-J]10$|^[A-J][1-9]$/.test(inputValue.toUpperCase());
-  
+
     if (validInput) {
       const row = inputValue.slice(0, -1).toUpperCase();
       const col = parseInt(inputValue.slice(1), 10);
-  
+
       const { colIndex, rowIndex } = getMatrixIndex(row, col);
-  
-      if (selectedCoordinates.some((coord) => coord[0] === rowIndex && coord[1] === colIndex)) {
-        return;
+
+      
+      const isCoordinateSelected = selectedCoordinates.some(
+          (coord) => coord[0] === rowIndex && coord[1] === colIndex
+        );
+
+      if (!isCoordinateSelected) {
+          setSelectedCoordinates([...selectedCoordinates, [rowIndex, colIndex]]);
       }
-  
-      setSelectedCoordinates([...selectedCoordinates, [rowIndex, colIndex]]);
-  
+
+
+      
       const isHit = ships.some((ship) =>
-        ship.some(([shipRow, shipCol]) => shipRow === rowIndex && shipCol === colIndex)
+        ship.some(
+          ([shipRow, shipCol]) => shipRow === rowIndex && shipCol === colIndex
+        )
       );
-  
+
       const newValue = isHit ? "O" : "X";
       dispatch(updateBoard({ rowIndex, colIndex, value: newValue }));
-  
+
       console.log("Nuevo estado del tablero:");
       console.log(playerBoard.map((row) => row.join(" ")).join("\n"));
-  
-
-      setInputValue("");
-  
     }
+      setInputValue("");
   };
+
+  const handleClickAndReload = (event) => {
+    event.preventDefault();
+    const { ships, updatedBoard } = generateRandomShips(boardSize, 5, 4);
+
+    dispatch(setCleanPlayerBoard({updatedBoard, ships}));
+    setShipsDestroyed(0);
+  }
+
+
+
 
   return (
     <div>
       <div className="comands-container">
-        <h3 className="comands-title">Barcos destruidos: </h3>
+        <h3 className="comands-title">Barcos destruidos: {shipsDestroyed} </h3>
 
         <label className="commands-text">Comandos:</label>
 
@@ -94,6 +147,7 @@ export const Board = () => {
           <button
             className="btn btn-outline-secondary command-button"
             type="button"
+            onClick={handleClickAndReload}
           >
             Limpiar
           </button>
@@ -101,7 +155,6 @@ export const Board = () => {
       </div>
 
       <div className="board">
-
         <div className="row">
           <div className="square"></div>
           {Array.from({ length: boardSize }, (_, index) => (
